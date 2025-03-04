@@ -18,7 +18,7 @@ export default function Home() {
   // Busca as histórias ao carregar a página
   useEffect(() => {
     axios
-      .get("http://localhost:5000/historias")
+      .get(`${process.env.NEXT_PUBLIC_API_URL}/historias`)
       .then((response) => {
         setHistorias(response.data);
       })
@@ -30,7 +30,7 @@ export default function Home() {
   // Publica uma nova história
   const publicarHistoria = () => {
     axios
-      .post("http://localhost:5000/historias", { titulo, conteudo })
+      .post(`${process.env.NEXT_PUBLIC_API_URL}/historias`, { titulo, conteudo })
       .then((response) => {
         setHistorias([response.data, ...historias]); // Adiciona a nova história no início da lista
         setTitulo(""); // Limpa o campo de título

@@ -56,11 +56,17 @@ export const useNotas = () => {
   };
 
   const removerNota = async (id: string) => {
-    try {
-      await deletarNota(id);
-      setNotas(notas.filter((n) => n._id !== id));
-    } catch (err) {
-      console.error("Erro ao remover nota", err);
+    const confirmacao = window.confirm(
+      "Tem certeza que deseja remover esta nota?"
+    );
+
+    if (confirmacao) {
+      try {
+        await deletarNota(id);
+        setNotas(notas.filter((n) => n._id !== id));
+      } catch (err) {
+        console.error("Erro ao remover nota", err);
+      }
     }
   };
 

@@ -86,7 +86,6 @@ export default function NotaCard({ nota, onDeletar, onEditar }: NotaCardProps) {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
               className="fixed inset-0 z-40 bg-black/50"
-              onClick={() => setExpandido(false)}
             />
 
             {/* Modal */}

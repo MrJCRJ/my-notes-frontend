@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface Nota {
@@ -16,6 +16,20 @@ interface NotaCardProps {
 
 export default function NotaCard({ nota, onDeletar, onEditar }: NotaCardProps) {
   const [expandido, setExpandido] = useState(false);
+
+  // Desabilita o scroll da página quando o modal está aberto
+  useEffect(() => {
+    if (expandido) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+
+    // Limpa o efeito ao desmontar o componente
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [expandido]);
 
   return (
     <>
@@ -71,7 +85,7 @@ export default function NotaCard({ nota, onDeletar, onEditar }: NotaCardProps) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="fixed inset-0 z-50 bg-black bg-opacity-100"
+              className="fixed inset-0 z-50 bg-black bg-opacity-50"
               onClick={() => setExpandido(false)}
             />
 

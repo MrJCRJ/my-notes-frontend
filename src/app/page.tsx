@@ -33,7 +33,42 @@ export default function Home() {
 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <Toaster position="bottom-right" />
+      {/* Toaster personalizado */}
+      <Toaster
+        position="bottom-right"
+        toastOptions={{
+          className: "dark:bg-gray-800 dark:text-white",
+          style: {
+            background: "#1F2937", // Cor de fundo escura
+            color: "#F3F4F6", // Cor do texto clara
+            border: "1px solid #374151", // Borda sutil
+            borderRadius: "8px", // Bordas arredondadas
+            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)", // Sombra suave
+          },
+          success: {
+            style: {
+              background: "#10B981", // Verde para sucesso
+              color: "#F3F4F6",
+              border: "1px solid #059669",
+            },
+          },
+          error: {
+            style: {
+              background: "#EF4444", // Vermelho para erro
+              color: "#F3F4F6",
+              border: "1px solid #DC2626",
+            },
+          },
+          loading: {
+            style: {
+              background: "#1F2937", // Fundo escuro para loading
+              color: "#F3F4F6",
+              border: "1px solid #374151",
+            },
+          },
+        }}
+      />
+
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start w-full max-w-4xl">
         <h1 className="text-3xl font-bold">Minhas Notas</h1>
 

@@ -71,6 +71,15 @@ export const useNotas = () => {
       cancelButtonColor: "#d33",
       confirmButtonText: "Sim, remover!",
       cancelButtonText: "Cancelar",
+      customClass: {
+        popup: "dark:bg-gray-800 dark:text-white",
+        title: "dark:text-white",
+        htmlContainer: "dark:text-gray-300",
+        confirmButton: "dark:bg-blue-600 dark:hover:bg-blue-700",
+        cancelButton: "dark:bg-red-600 dark:hover:bg-red-700",
+      },
+      background: "#1F2937",
+      color: "#F3F4F6",
     });
 
     if (result.isConfirmed) {

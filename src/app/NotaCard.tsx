@@ -71,7 +71,7 @@ export default function NotaCard({ nota, onDeletar, onEditar }: NotaCardProps) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="fixed inset-0 z-50 bg-black bg-opacity-50"
+              className="fixed inset-0 z-50 bg-black bg-opacity-100"
               onClick={() => setExpandido(false)}
             />
 
@@ -81,13 +81,13 @@ export default function NotaCard({ nota, onDeletar, onEditar }: NotaCardProps) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -50 }}
               transition={{ duration: 0.3 }}
-              className="fixed inset-0 z-50 flex items-center justify-center"
+              className="fixed inset-0 z-50 flex items-center justify-center p-4"
             >
-              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-2xl w-full mx-4">
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
                 <h3 className="text-2xl font-bold mb-4 dark:text-white">
                   {nota.titulo}
                 </h3>
-                <p className="text-gray-600 dark:text-gray-400 mb-4">
+                <p className="text-gray-600 dark:text-gray-400 mb-4 whitespace-pre-wrap">
                   {nota.conteudo}
                 </p>
                 {nota.tags && (

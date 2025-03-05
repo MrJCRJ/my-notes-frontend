@@ -82,12 +82,26 @@ export default function Home() {
       });
   };
 
-  // Filtra as notas com base na busca
-  const notasFiltradas = notas.filter(
-    (nota) =>
-      nota.titulo.toLowerCase().includes(busca.toLowerCase()) ||
-      nota.conteudo.toLowerCase().includes(busca.toLowerCase())
-  );
+  // Filtra as notas com base na busca (título, conteúdo e tags)
+  const notasFiltradas = notas.filter((nota) => {
+    const buscaLowerCase = busca.toLowerCase();
+
+    // Verifica se o título ou o conteúdo contêm a busca
+    const tituloContemBusca = nota.titulo
+      .toLowerCase()
+      .includes(buscaLowerCase);
+    const conteudoContemBusca = nota.conteudo
+      .toLowerCase()
+      .includes(buscaLowerCase);
+
+    // Verifica se alguma tag contém a busca
+    const tagsContemBusca = nota.tags?.some((tag) =>
+      tag.toLowerCase().includes(buscaLowerCase)
+    );
+
+    // Retorna true se a busca estiver no título, conteúdo ou tags
+    return tituloContemBusca || conteudoContemBusca || tagsContemBusca;
+  });
 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">

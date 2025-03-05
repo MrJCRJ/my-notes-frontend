@@ -1,3 +1,6 @@
+// components/NotaCard.tsx
+"use client";
+
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -17,7 +20,6 @@ interface NotaCardProps {
 export default function NotaCard({ nota, onDeletar, onEditar }: NotaCardProps) {
   const [expandido, setExpandido] = useState(false);
 
-  // Desabilita o scroll da página quando o modal está aberto
   useEffect(() => {
     if (expandido) {
       document.body.style.overflow = "hidden";
@@ -25,7 +27,6 @@ export default function NotaCard({ nota, onDeletar, onEditar }: NotaCardProps) {
       document.body.style.overflow = "auto";
     }
 
-    // Limpa o efeito ao desmontar o componente
     return () => {
       document.body.style.overflow = "auto";
     };
@@ -34,7 +35,13 @@ export default function NotaCard({ nota, onDeletar, onEditar }: NotaCardProps) {
   return (
     <>
       {/* Card da Nota */}
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+        transition={{ duration: 0.3 }}
+        className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow"
+      >
         <h3 className="text-xl font-bold mb-2 dark:text-white">
           {nota.titulo}
         </h3>
@@ -73,7 +80,7 @@ export default function NotaCard({ nota, onDeletar, onEditar }: NotaCardProps) {
             Deletar
           </button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Modal para Nota Expandida */}
       <AnimatePresence>

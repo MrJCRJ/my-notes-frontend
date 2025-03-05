@@ -5,6 +5,8 @@ import {
   publicarNota,
   deletarNota,
 } from "../services/notaService";
+import Swal from "sweetalert2";
+import toast from "react-hot-toast";
 
 interface Nota {
   _id: string;
@@ -26,6 +28,7 @@ export const useNotas = () => {
         setNotas(notas);
       } catch (err) {
         console.error("Erro ao carregar notas", err);
+        toast.error("Erro ao carregar notas.");
       }
     };
 
@@ -47,25 +50,37 @@ export const useNotas = () => {
       if (notaParaEditar) {
         setNotas(notas.map((n) => (n._id === nota._id ? nota : n)));
         setNotaParaEditar(undefined);
+        toast.success("Nota atualizada com sucesso!");
       } else {
         setNotas([nota, ...notas]);
+        toast.success("Nota adicionada com sucesso!");
       }
     } catch (err) {
       console.error("Erro ao adicionar/atualizar nota", err);
+      toast.error("Erro ao adicionar/atualizar nota.");
     }
   };
 
   const removerNota = async (id: string) => {
-    const confirmacao = window.confirm(
-      "Tem certeza que deseja remover esta nota?"
-    );
+    const result = await Swal.fire({
+      title: "Tem certeza?",
+      text: "Você não poderá reverter isso!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Sim, remover!",
+      cancelButtonText: "Cancelar",
+    });
 
-    if (confirmacao) {
+    if (result.isConfirmed) {
       try {
         await deletarNota(id);
         setNotas(notas.filter((n) => n._id !== id));
+        toast.success("Nota removida com sucesso!");
       } catch (err) {
         console.error("Erro ao remover nota", err);
+        toast.error("Erro ao remover nota.");
       }
     }
   };

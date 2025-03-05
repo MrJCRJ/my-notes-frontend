@@ -1,8 +1,10 @@
-"use client"; // Adicione isso no topo do arquivo para usar hooks do React
+"use client";
 
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Image from "next/image";
+import NotaForm from "./NotaForm";
+import NotaCard from "./NotaCard";
 
 interface Nota {
   _id: string;
@@ -12,8 +14,6 @@ interface Nota {
 
 export default function Home() {
   const [notas, setNotas] = useState<Nota[]>([]);
-  const [titulo, setTitulo] = useState<string>("");
-  const [conteudo, setConteudo] = useState<string>("");
 
   // Busca as notas ao carregar a página
   useEffect(() => {
@@ -28,13 +28,11 @@ export default function Home() {
   }, []);
 
   // Publica uma nova nota
-  const publicarNota = () => {
+  const publicarNota = (titulo: string, conteudo: string) => {
     axios
       .post(`${process.env.NEXT_PUBLIC_API_URL}/notas`, { titulo, conteudo })
       .then((response) => {
-        setNotas([response.data, ...notas]); // Adiciona a nova nota no início da lista
-        setTitulo(""); // Limpa o campo de título
-        setConteudo(""); // Limpa o campo de conteúdo
+        setNotas([response.data, ...notas]);
       })
       .catch((err) => {
         console.error("Erro ao publicar nota", err);
@@ -47,46 +45,12 @@ export default function Home() {
         <h1 className="text-3xl font-bold">Minhas Notas</h1>
 
         {/* Formulário para publicar uma nova nota */}
-        <div className="w-full bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-          <input
-            type="text"
-            placeholder="Título"
-            value={titulo}
-            onChange={(e) => setTitulo(e.target.value)}
-            className="w-full p-2 mb-4 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-900 dark:text-white"
-          />
-          <textarea
-            placeholder="Conteúdo"
-            value={conteudo}
-            onChange={(e) => setConteudo(e.target.value)}
-            className="w-full p-2 mb-4 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-900 dark:text-white"
-            rows={4}
-          />
-          <button
-            onClick={publicarNota}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Publicar Nota
-          </button>
-        </div>
+        <NotaForm onPublicarNota={publicarNota} />
 
         {/* Lista de notas */}
         <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {notas.map((nota) => (
-            <div
-              key={nota._id}
-              className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow"
-            >
-              <h3 className="text-xl font-bold mb-2 dark:text-white">
-                {nota.titulo}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {nota.conteudo.slice(0, 100)}...
-              </p>
-              <button className="mt-4 text-blue-600 dark:text-blue-400 hover:underline">
-                Ver mais
-              </button>
-            </div>
+            <NotaCard key={nota._id} nota={nota} />
           ))}
         </div>
       </main>

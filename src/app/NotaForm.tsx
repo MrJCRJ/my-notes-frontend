@@ -1,18 +1,38 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 interface NotaFormProps {
-  onPublicarNota: (titulo: string, conteudo: string) => void;
+  onPublicarNota: (titulo: string, conteudo: string, tags?: string[]) => void;
+  notaParaEditar?: {
+    _id: string;
+    titulo: string;
+    conteudo: string;
+    tags?: string[];
+  };
 }
 
-export default function NotaForm({ onPublicarNota }: NotaFormProps) {
-  const [titulo, setTitulo] = useState < string > ("");
-  const [conteudo, setConteudo] = useState < string > ("");
+export default function NotaForm({
+  onPublicarNota,
+  notaParaEditar,
+}: NotaFormProps) {
+  const [titulo, setTitulo] = useState<string>("");
+  const [conteudo, setConteudo] = useState<string>("");
+  const [tags, setTags] = useState<string>("");
+
+  useEffect(() => {
+    if (notaParaEditar) {
+      setTitulo(notaParaEditar.titulo);
+      setConteudo(notaParaEditar.conteudo);
+      setTags(notaParaEditar.tags?.join(", ") || "");
+    }
+  }, [notaParaEditar]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onPublicarNota(titulo, conteudo);
+    const tagsArray = tags.split(",").map((tag) => tag.trim());
+    onPublicarNota(titulo, conteudo, tagsArray);
     setTitulo("");
     setConteudo("");
+    setTags("");
   };
 
   return (
@@ -34,11 +54,18 @@ export default function NotaForm({ onPublicarNota }: NotaFormProps) {
           rows={4}
           required
         />
+        <input
+          type="text"
+          placeholder="Tags (separadas por vírgula)"
+          value={tags}
+          onChange={(e) => setTags(e.target.value)}
+          className="w-full p-2 mb-4 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-900 dark:text-white"
+        />
         <button
           type="submit"
           className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
         >
-          Publicar Nota
+          {notaParaEditar ? "Atualizar Nota" : "Publicar Nota"}
         </button>
       </form>
     </div>

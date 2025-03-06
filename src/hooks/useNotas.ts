@@ -8,7 +8,8 @@ import {
 import Swal from "sweetalert2";
 import toast from "react-hot-toast";
 
-interface Nota {
+// Exporte a interface Nota
+export interface Nota {
   _id: string;
   titulo: string;
   conteudo: string;

@@ -1,11 +1,13 @@
-// components/Home.tsx
+// page.tsx
 "use client";
 
 import React, { useState } from "react";
-import NotaForm from "./NotaForm";
-import NotaCard from "./NotaCard";
+import NotaForm from "../components/NotaForm";
 import { useNotas } from "../hooks/useNotas";
 import { Toaster } from "react-hot-toast";
+import AuthButtons from "../components/AuthButtons";
+import SearchBar from "../components/SearchBar";
+import NotaList from "../components/NotaList";
 
 export default function Home() {
   const {
@@ -72,29 +74,24 @@ export default function Home() {
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start w-full max-w-4xl">
         <h1 className="text-3xl font-bold">Minhas Notas</h1>
 
-        <input
-          type="text"
-          placeholder="Buscar notas..."
-          value={busca}
-          onChange={(e) => setBusca(e.target.value)}
-          className="w-full p-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-900 dark:text-white"
-        />
+        {/* Botões de Autenticação */}
+        <AuthButtons />
 
+        {/* Barra de Busca */}
+        <SearchBar busca={busca} setBusca={setBusca} />
+
+        {/* Formulário de Nota */}
         <NotaForm
           onPublicarNota={adicionarOuAtualizarNota}
           notaParaEditar={notaParaEditar}
         />
 
-        <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {notasFiltradas.map((nota) => (
-            <NotaCard
-              key={nota._id}
-              nota={nota}
-              onDeletar={removerNota}
-              onEditar={(nota) => setNotaParaEditar(nota)}
-            />
-          ))}
-        </div>
+        {/* Lista de Notas */}
+        <NotaList
+          notas={notasFiltradas}
+          onDeletar={removerNota}
+          onEditar={(nota) => setNotaParaEditar(nota)}
+        />
       </main>
 
       <footer></footer>

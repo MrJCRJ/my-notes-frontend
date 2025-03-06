@@ -30,23 +30,34 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const token = urlParams.get("token");
 
     if (token) {
+      console.log("Token recebido:", token); // Log do token
       setToken(token);
       const decoded = jwt.decode(token) as {
         id: string;
         email: string;
         role: string;
       };
-      setUser({ id: decoded.id, email: decoded.email, role: decoded.role });
-      window.history.replaceState({}, document.title, window.location.pathname); // Limpa a URL
+      console.log("Usuário decodificado:", decoded); // Log do usuário decodificado
+
+      if (decoded && decoded.email) {
+        setUser({ id: decoded.id, email: decoded.email, role: decoded.role });
+      } else {
+        console.error("Email não encontrado no token.");
+      }
+
+      window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, []);
 
   const login = async (email: string, password: string) => {
-    const response = await fetch("http://localhost:5001/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
+    const response = await fetch(
+      "https://auth-backend-mauve.vercel.app/login",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      }
+    );
     const data = await response.json();
     if (response.ok) {
       setToken(data.token);
@@ -62,11 +73,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const register = async (email: string, password: string) => {
-    const response = await fetch("http://localhost:5001/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
+    const response = await fetch(
+      "https://auth-backend-mauve.vercel.app/register",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      }
+    );
     if (!response.ok) {
       const data = await response.json();
       throw new Error(data.message);

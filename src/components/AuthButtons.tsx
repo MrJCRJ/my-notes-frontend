@@ -9,7 +9,7 @@ export default function AuthButtons() {
 
   const handleGoogleLogin = () => {
     // Redireciona para o backend de autenticação com Google
-    window.location.href = "http://localhost:5001/auth/google";
+    window.location.href = "https://auth-backend-mauve.vercel.app/auth/google";
   };
 
   return (

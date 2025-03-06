@@ -1,7 +1,7 @@
 // context/AuthContext.tsx
-"use client"; // Marque como Client Component
+"use client";
 
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import jwt from "jsonwebtoken";
 
 interface User {
@@ -24,6 +24,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
 
+  // Captura o token da URL após o redirecionamento do Google
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get("token");
+
+    if (token) {
+      setToken(token);
+      const decoded = jwt.decode(token) as {
+        id: string;
+        email: string;
+        role: string;
+      };
+      setUser({ id: decoded.id, email: decoded.email, role: decoded.role });
+      window.history.replaceState({}, document.title, window.location.pathname); // Limpa a URL
+    }
+  }, []);
+
   const login = async (email: string, password: string) => {
     const response = await fetch("http://localhost:5001/login", {
       method: "POST",
@@ -33,8 +50,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const data = await response.json();
     if (response.ok) {
       setToken(data.token);
-      const decoded = jwt.decode(data.token) as { id: string; role: string };
-      setUser({ id: decoded.id, email, role: decoded.role });
+      const decoded = jwt.decode(data.token) as {
+        id: string;
+        email: string;
+        role: string;
+      };
+      setUser({ id: decoded.id, email: decoded.email, role: decoded.role });
     } else {
       throw new Error(data.message);
     }

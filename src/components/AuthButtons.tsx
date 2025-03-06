@@ -2,6 +2,7 @@
 "use client";
 
 import { useAuth } from "../context/AuthContext";
+import { FcGoogle } from "react-icons/fc"; // Ícone do Google
 
 export default function AuthButtons() {
   const { user, logout } = useAuth();
@@ -14,15 +15,24 @@ export default function AuthButtons() {
   return (
     <div>
       {user ? (
-        <button onClick={logout} className="text-red-600 dark:text-red-400">
-          Logout
-        </button>
+        <div className="flex items-center gap-4">
+          <span className="text-gray-700 dark:text-gray-300">
+            Olá, {user.email}!
+          </span>
+          <button
+            onClick={logout}
+            className="text-white bg-red-600 p-2 rounded-lg hover:bg-red-700 transition-colors"
+          >
+            Logout
+          </button>
+        </div>
       ) : (
         <button
           onClick={handleGoogleLogin}
-          className="text-white bg-red-600 p-2 rounded-lg"
+          className="flex items-center gap-2 text-white bg-red-600 p-2 rounded-lg hover:bg-red-700 transition-colors"
         >
-          Login com Google
+          <FcGoogle className="text-xl" /> {/* Ícone do Google */}
+          <span>Login com Google</span>
         </button>
       )}
     </div>

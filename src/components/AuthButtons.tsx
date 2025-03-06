@@ -9,7 +9,8 @@ export default function AuthButtons() {
 
   const handleGoogleLogin = () => {
     // Redireciona para o backend de autenticação com Google
-    window.location.href = "https://auth-backend-mauve.vercel.app/auth/google";
+    window.location.href =
+      "https://auth-backend-jose-ciceros-projects.vercel.app/auth/google";
   };
 
   return (

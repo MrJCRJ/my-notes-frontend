@@ -51,7 +51,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const login = async (email: string, password: string) => {
     const response = await fetch(
-      "https://auth-backend-mauve.vercel.app/login",
+      "https://auth-backend-jose-ciceros-projects.vercel.app/login",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -74,7 +74,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const register = async (email: string, password: string) => {
     const response = await fetch(
-      "https://auth-backend-mauve.vercel.app/register",
+      "https://auth-backend-jose-ciceros-projects.vercel.app/register",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },

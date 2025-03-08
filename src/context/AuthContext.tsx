@@ -4,25 +4,57 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import jwt from "jsonwebtoken";
 
+// Defina a interface do usuário
 interface User {
   id: string;
   email: string;
   role: string;
 }
 
-interface AuthContextType {
-  user: User | null;
+// Defina o tipo do contexto com tipagem genérica
+interface AuthContextType<T> {
+  user: T | null;
   token: string | null;
-  login: (email: string, password: string) => Promise<void>;
   logout: () => void;
-  register: (email: string, password: string) => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | null>(null);
+// Crie o contexto sem um valor padrão explícito
+const AuthContext = createContext<AuthContextType<unknown> | null>(null);
 
+// Função para decodificar e validar o token
+const decodeToken = (token: string): User | null => {
+  try {
+    const decoded = jwt.decode(token) as {
+      id: string;
+      email: string;
+      role: string;
+    };
+    if (decoded && decoded.email) {
+      return { id: decoded.id, email: decoded.email, role: decoded.role };
+    }
+    return null;
+  } catch (error) {
+    console.error("Erro ao decodificar o token:", error);
+    return null;
+  }
+};
+
+// Provedor do contexto
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
+
+  // Verifica se há um token no localStorage ao carregar o componente
+  useEffect(() => {
+    const storedToken = localStorage.getItem("authToken");
+    if (storedToken) {
+      const decodedUser = decodeToken(storedToken);
+      if (decodedUser) {
+        setUser(decodedUser);
+        setToken(storedToken);
+      }
+    }
+  }, []);
 
   // Captura o token da URL após o redirecionamento do Google
   useEffect(() => {
@@ -30,79 +62,34 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const token = urlParams.get("token");
 
     if (token) {
-      console.log("Token recebido:", token); // Log do token
-      setToken(token);
-      const decoded = jwt.decode(token) as {
-        id: string;
-        email: string;
-        role: string;
-      };
-      console.log("Usuário decodificado:", decoded); // Log do usuário decodificado
-
-      if (decoded && decoded.email) {
-        setUser({ id: decoded.id, email: decoded.email, role: decoded.role });
-      } else {
-        console.error("Email não encontrado no token.");
+      const decodedUser = decodeToken(token);
+      if (decodedUser) {
+        setUser(decodedUser);
+        setToken(token);
+        localStorage.setItem("authToken", token); // Armazena o token no localStorage
       }
-
       window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, []);
 
-  const login = async (email: string, password: string) => {
-    const response = await fetch(
-      "https://auth-backend-jose-ciceros-projects.vercel.app/login",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      }
-    );
-    const data = await response.json();
-    if (response.ok) {
-      setToken(data.token);
-      const decoded = jwt.decode(data.token) as {
-        id: string;
-        email: string;
-        role: string;
-      };
-      setUser({ id: decoded.id, email: decoded.email, role: decoded.role });
-    } else {
-      throw new Error(data.message);
-    }
-  };
-
-  const register = async (email: string, password: string) => {
-    const response = await fetch(
-      "https://auth-backend-jose-ciceros-projects.vercel.app/register",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      }
-    );
-    if (!response.ok) {
-      const data = await response.json();
-      throw new Error(data.message);
-    }
-  };
-
   const logout = () => {
     setUser(null);
     setToken(null);
+    localStorage.removeItem("authToken"); // Remove o token do localStorage
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, register }}>
+    <AuthContext.Provider value={{ user, token, logout }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => {
+// Hook personalizado para usar o contexto
+export const useAuth = <T,>() => {
   const context = useContext(AuthContext);
   if (!context) {
     throw new Error("useAuth must be used within an AuthProvider");
   }
-  return context;
+  return context as AuthContextType<T>;
 };

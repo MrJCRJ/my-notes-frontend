@@ -8,6 +8,7 @@ import jwt from "jsonwebtoken";
 interface User {
   id: string;
   email: string;
+  name: string; // Adicione o campo name
   role: string;
 }
 
@@ -27,10 +28,16 @@ const decodeToken = (token: string): User | null => {
     const decoded = jwt.decode(token) as {
       id: string;
       email: string;
+      name: string; // Adicione o campo name
       role: string;
     };
     if (decoded && decoded.email) {
-      return { id: decoded.id, email: decoded.email, role: decoded.role };
+      return {
+        id: decoded.id,
+        email: decoded.email,
+        name: decoded.name, // Inclua o nome aqui
+        role: decoded.role,
+      };
     }
     return null;
   } catch (error) {

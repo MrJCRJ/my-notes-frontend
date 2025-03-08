@@ -9,6 +9,7 @@ import { useState } from "react";
 interface User {
   id: string;
   email: string;
+  name: string; // Adicione o campo name
   role: string;
 }
 
@@ -27,7 +28,7 @@ export default function AuthButtons() {
       {user ? (
         <div className="flex items-center gap-4">
           <span className="text-gray-700 dark:text-gray-300">
-            Olá, {user.email}!
+            Olá, {user.name}! {/* Exibe o nome do usuário */}
           </span>
           <button
             onClick={logout}

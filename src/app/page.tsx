@@ -1,7 +1,6 @@
-// page.tsx
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import NotaForm from "../components/NotaForm";
 import { useNotas } from "../hooks/useNotas";
 import { Toaster } from "react-hot-toast";
@@ -10,14 +9,21 @@ import SearchBar from "../components/SearchBar";
 import NotaList from "../components/NotaList";
 
 export default function Home() {
+  const [busca, setBusca] = useState<string>("");
+
+  // Função de login
+  const handleGoogleLogin = useCallback(() => {
+    window.location.href = process.env.NEXT_PUBLIC_AUTH_URL!;
+  }, []);
+
+  // Passa a função handleGoogleLogin para o hook useNotas
   const {
     notas,
     notaParaEditar,
     setNotaParaEditar,
     adicionarOuAtualizarNota,
     removerNota,
-  } = useNotas();
-  const [busca, setBusca] = useState<string>("");
+  } = useNotas(handleGoogleLogin);
 
   const notasFiltradas = notas.filter((nota) => {
     const buscaLowerCase = busca.toLowerCase();
@@ -75,7 +81,7 @@ export default function Home() {
         <h1 className="text-3xl font-bold">Minhas Notas</h1>
 
         {/* Botões de Autenticação */}
-        <AuthButtons />
+        <AuthButtons onLogin={handleGoogleLogin} />
 
         {/* Barra de Busca */}
         <SearchBar busca={busca} setBusca={setBusca} />

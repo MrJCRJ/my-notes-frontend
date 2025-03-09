@@ -1,4 +1,3 @@
-// components/AuthButtons.tsx
 "use client";
 
 import { useAuth } from "../context/AuthContext";
@@ -13,7 +12,11 @@ interface User {
   role: string;
 }
 
-export default function AuthButtons() {
+interface AuthButtonsProps {
+  onLogin: () => void; // Adicione uma prop para a função de login
+}
+
+export default function AuthButtons({ onLogin }: AuthButtonsProps) {
   const { user, logout } = useAuth<User>(); // Passa a interface User como argumento de tipo
   const [isLoading, setIsLoading] = useState(false);
 
@@ -21,6 +24,7 @@ export default function AuthButtons() {
     setIsLoading(true);
     // Usa a URL da variável de ambiente
     window.location.href = process.env.NEXT_PUBLIC_AUTH_URL!;
+    onLogin(); // Chama a função de login passada como prop
   };
 
   return (

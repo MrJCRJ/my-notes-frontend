@@ -19,7 +19,7 @@ export default function AuthButtons({ onLogin }: AuthButtonsProps) {
     window.location.href = `https://authenticador-service-production.up.railway.app/auth/google/init?redirect=${encodeURIComponent(
       frontendOrigin
     )}`;
-    onLogin();
+    onLogin(); // Chama a função de login passada como prop
   };
 
   return (

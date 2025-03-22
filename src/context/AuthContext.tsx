@@ -21,7 +21,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const response = await fetch(
         "https://authenticador-service-production.up.railway.app/auth/profile",
         {
-          credentials: "include",
+          credentials: "include", // Inclui cookies na requisição
         }
       );
 

@@ -1,38 +1,33 @@
+// src/components/AuthButtons.tsx
 "use client";
 
 import { useAuth } from "../context/AuthContext";
 import { FcGoogle } from "react-icons/fc";
 import { useState } from "react";
 
-// Defina a interface do usuário
-interface User {
-  id: string;
-  email: string;
-  name: string; // Adicione o campo name
-  role: string;
-}
-
 interface AuthButtonsProps {
-  onLogin: () => void; // Adicione uma prop para a função de login
+  onLogin: () => void;
 }
 
 export default function AuthButtons({ onLogin }: AuthButtonsProps) {
-  const { user, logout } = useAuth<User>(); // Passa a interface User como argumento de tipo
+  const { email, logout } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleGoogleLogin = () => {
     setIsLoading(true);
-    // Usa a URL da variável de ambiente
-    window.location.href = process.env.NEXT_PUBLIC_AUTH_URL!;
-    onLogin(); // Chama a função de login passada como prop
+    const frontendOrigin = window.location.origin;
+    window.location.href = `https://authenticador-service-production.up.railway.app/auth/google/init?redirect=${encodeURIComponent(
+      frontendOrigin
+    )}`;
+    onLogin();
   };
 
   return (
     <div>
-      {user ? (
+      {email ? (
         <div className="flex items-center gap-4">
           <span className="text-gray-700 dark:text-gray-300">
-            Olá, {user.name}! {/* Exibe o nome do usuário */}
+            Olá, {email}!
           </span>
           <button
             onClick={logout}

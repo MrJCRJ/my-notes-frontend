@@ -1,22 +1,26 @@
+// src/app/page.tsx
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import NotaForm from "../components/NotaForm";
 import { useNotas } from "../hooks/useNotas";
 import { Toaster } from "react-hot-toast";
 import AuthButtons from "../components/AuthButtons";
 import SearchBar from "../components/SearchBar";
 import NotaList from "../components/NotaList";
+import { useAuth } from "../context/AuthContext";
 
 export default function Home() {
   const [busca, setBusca] = useState<string>("");
+  const { checkLoginStatus } = useAuth();
 
-  // Função de login
   const handleGoogleLogin = useCallback(() => {
-    window.location.href = process.env.NEXT_PUBLIC_AUTH_URL!;
+    const frontendOrigin = window.location.origin;
+    window.location.href = `https://authenticador-service-production.up.railway.app/auth/google/init?redirect=${encodeURIComponent(
+      frontendOrigin
+    )}`;
   }, []);
 
-  // Passa a função handleGoogleLogin para o hook useNotas
   const {
     notas,
     notaParaEditar,
@@ -24,6 +28,10 @@ export default function Home() {
     adicionarOuAtualizarNota,
     removerNota,
   } = useNotas(handleGoogleLogin);
+
+  useEffect(() => {
+    checkLoginStatus();
+  }, [checkLoginStatus]);
 
   const notasFiltradas = notas.filter((nota) => {
     const buscaLowerCase = busca.toLowerCase();
@@ -41,35 +49,34 @@ export default function Home() {
 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      {/* Toaster personalizado */}
       <Toaster
         position="bottom-right"
         toastOptions={{
           className: "dark:bg-gray-800 dark:text-white",
           style: {
-            background: "#1F2937", // Cor de fundo escura
-            color: "#F3F4F6", // Cor do texto clara
-            border: "1px solid #374151", // Borda sutil
-            borderRadius: "8px", // Bordas arredondadas
-            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)", // Sombra suave
+            background: "#1F2937",
+            color: "#F3F4F6",
+            border: "1px solid #374151",
+            borderRadius: "8px",
+            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
           },
           success: {
             style: {
-              background: "#10B981", // Verde para sucesso
+              background: "#10B981",
               color: "#F3F4F6",
               border: "1px solid #059669",
             },
           },
           error: {
             style: {
-              background: "#EF4444", // Vermelho para erro
+              background: "#EF4444",
               color: "#F3F4F6",
               border: "1px solid #DC2626",
             },
           },
           loading: {
             style: {
-              background: "#1F2937", // Fundo escuro para loading
+              background: "#1F2937",
               color: "#F3F4F6",
               border: "1px solid #374151",
             },
@@ -80,19 +87,15 @@ export default function Home() {
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start w-full max-w-4xl">
         <h1 className="text-3xl font-bold">Minhas Notas</h1>
 
-        {/* Botões de Autenticação */}
         <AuthButtons onLogin={handleGoogleLogin} />
 
-        {/* Barra de Busca */}
         <SearchBar busca={busca} setBusca={setBusca} />
 
-        {/* Formulário de Nota */}
         <NotaForm
           onPublicarNota={adicionarOuAtualizarNota}
           notaParaEditar={notaParaEditar}
         />
 
-        {/* Lista de Notas */}
         <NotaList
           notas={notasFiltradas}
           onDeletar={removerNota}

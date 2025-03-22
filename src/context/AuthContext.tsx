@@ -2,101 +2,81 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import jwt from "jsonwebtoken";
 
-// Defina a interface do usuário
-interface User {
-  id: string;
-  email: string;
-  name: string; // Adicione o campo name
-  role: string;
-}
-
-// Defina o tipo do contexto com tipagem genérica
-interface AuthContextType<T> {
-  user: T | null;
+interface AuthContextType {
+  email: string | null;
   token: string | null;
   logout: () => void;
+  checkLoginStatus: () => Promise<void>;
 }
 
-// Crie o contexto sem um valor padrão explícito
-const AuthContext = createContext<AuthContextType<unknown> | null>(null);
+const AuthContext = createContext<AuthContextType | null>(null);
 
-// Função para decodificar e validar o token
-const decodeToken = (token: string): User | null => {
-  try {
-    const decoded = jwt.decode(token) as {
-      id: string;
-      email: string;
-      name: string; // Adicione o campo name
-      role: string;
-    };
-    if (decoded && decoded.email) {
-      return {
-        id: decoded.id,
-        email: decoded.email,
-        name: decoded.name, // Inclua o nome aqui
-        role: decoded.role,
-      };
-    }
-    return null;
-  } catch (error) {
-    console.error("Erro ao decodificar o token:", error);
-    return null;
-  }
-};
-
-// Provedor do contexto
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [email, setEmail] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
 
-  // Verifica se há um token no localStorage ao carregar o componente
-  useEffect(() => {
-    const storedToken = localStorage.getItem("authToken");
-    if (storedToken) {
-      const decodedUser = decodeToken(storedToken);
-      if (decodedUser) {
-        setUser(decodedUser);
-        setToken(storedToken);
+  const checkLoginStatus = async () => {
+    try {
+      const response = await fetch(
+        "https://authenticador-service-production.up.railway.app/auth/profile",
+        {
+          credentials: "include",
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setEmail(data.email); // Supondo que o backend retorne o email
+        setToken(data.token); // Supondo que o backend retorne o token
+      } else if (response.status === 401) {
+        throw new Error("Token inválido ou expirado");
+      } else {
+        throw new Error("Erro ao verificar o status de login");
       }
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+      setEmail(null);
+      setToken(null);
     }
+  };
+
+  useEffect(() => {
+    checkLoginStatus();
   }, []);
 
-  // Captura o token da URL após o redirecionamento do Google
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get("token");
+  const logout = async () => {
+    try {
+      const response = await fetch(
+        "https://authenticador-service-production.up.railway.app/auth/logout",
+        {
+          method: "POST",
+          credentials: "include",
+        }
+      );
 
-    if (token) {
-      const decodedUser = decodeToken(token);
-      if (decodedUser) {
-        setUser(decodedUser);
-        setToken(token);
-        localStorage.setItem("authToken", token); // Armazena o token no localStorage
+      if (response.ok) {
+        setEmail(null);
+        setToken(null);
+      } else {
+        throw new Error("Erro ao fazer logout");
       }
-      window.history.replaceState({}, document.title, window.location.pathname);
+    } catch (error) {
+      console.error("Error during logout:", error);
     }
-  }, []);
-
-  const logout = () => {
-    setUser(null);
-    setToken(null);
-    localStorage.removeItem("authToken"); // Remove o token do localStorage
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, logout }}>
+    <AuthContext.Provider value={{ email, token, logout, checkLoginStatus }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-// Hook personalizado para usar o contexto
-export const useAuth = <T,>() => {
+export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
     throw new Error("useAuth must be used within an AuthProvider");
   }
-  return context as AuthContextType<T>;
+  return context;
 };

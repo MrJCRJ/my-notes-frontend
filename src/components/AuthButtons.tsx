@@ -17,7 +17,7 @@ export default function AuthButtons({ onLogin }: AuthButtonsProps) {
     setIsLoading(true);
     const frontendOrigin = window.location.origin;
     window.location.href = `https://authenticador-service-production.up.railway.app/auth/google/init?redirect=${encodeURIComponent(
-      frontendOrigin
+      `${frontendOrigin}?token_callback=true`
     )}`;
     onLogin(); // Chama a função de login passada como prop
   };

@@ -1,3 +1,4 @@
+// src/components/NotaForm.tsx
 import React, { useState, useEffect } from "react";
 
 interface NotaFormProps {
@@ -8,11 +9,13 @@ interface NotaFormProps {
     conteudo: string;
     tags?: string[];
   };
+  onCancelarEdicao: () => void;
 }
 
 export default function NotaForm({
   onPublicarNota,
   notaParaEditar,
+  onCancelarEdicao,
 }: NotaFormProps) {
   const [titulo, setTitulo] = useState<string>("");
   const [conteudo, setConteudo] = useState<string>("");
@@ -23,16 +26,34 @@ export default function NotaForm({
       setTitulo(notaParaEditar.titulo);
       setConteudo(notaParaEditar.conteudo);
       setTags(notaParaEditar.tags?.join(", ") || "");
+    } else {
+      resetForm();
     }
   }, [notaParaEditar]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const tagsArray = tags.split(",").map((tag) => tag.trim());
-    onPublicarNota(titulo, conteudo, tagsArray);
+  const resetForm = () => {
     setTitulo("");
     setConteudo("");
     setTags("");
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const tagsArray = tags
+      .split(",")
+      .map((tag) => tag.trim())
+      .filter((tag) => tag.length > 0);
+    onPublicarNota(
+      titulo,
+      conteudo,
+      tagsArray.length > 0 ? tagsArray : undefined
+    );
+    resetForm();
+  };
+
+  const handleCancelar = () => {
+    resetForm();
+    onCancelarEdicao();
   };
 
   return (
@@ -61,12 +82,23 @@ export default function NotaForm({
           onChange={(e) => setTags(e.target.value)}
           className="w-full p-2 mb-4 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-900 dark:text-white"
         />
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          {notaParaEditar ? "Atualizar Nota" : "Publicar Nota"}
-        </button>
+        <div className="flex gap-2">
+          <button
+            type="submit"
+            className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            {notaParaEditar ? "Atualizar Nota" : "Publicar Nota"}
+          </button>
+          {notaParaEditar && (
+            <button
+              type="button"
+              onClick={handleCancelar}
+              className="flex-1 bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition-colors"
+            >
+              Cancelar
+            </button>
+          )}
+        </div>
       </form>
     </div>
   );

@@ -16,9 +16,17 @@ export default function Home() {
 
   const handleGoogleLogin = useCallback(() => {
     const frontendOrigin = window.location.origin;
-    window.location.href = `https://authenticador-service-production.up.railway.app/auth/google/init?redirect=${encodeURIComponent(
-      frontendOrigin
+    const redirectUrl = `${frontendOrigin}/auth/callback`;
+    const authUrl = `http://localhost:3000/auth/google/init?redirect=${encodeURIComponent(
+      redirectUrl
     )}`;
+
+    try {
+      new URL(authUrl);
+      window.location.href = authUrl;
+    } catch (error) {
+      console.error("URL de autenticação inválida:", error);
+    }
   }, []);
 
   const {
@@ -34,17 +42,15 @@ export default function Home() {
   }, [checkLoginStatus]);
 
   const notasFiltradas = notas.filter((nota) => {
+    if (!busca.trim()) return true;
+
     const buscaLowerCase = busca.toLowerCase();
-    const tituloContemBusca = nota.titulo
-      .toLowerCase()
-      .includes(buscaLowerCase);
-    const conteudoContemBusca = nota.conteudo
-      .toLowerCase()
-      .includes(buscaLowerCase);
-    const tagsContemBusca = nota.tags?.some((tag) =>
-      tag.toLowerCase().includes(buscaLowerCase)
+    return (
+      nota.titulo.toLowerCase().includes(buscaLowerCase) ||
+      nota.conteudo.toLowerCase().includes(buscaLowerCase) ||
+      (nota.tags &&
+        nota.tags.some((tag) => tag.toLowerCase().includes(buscaLowerCase)))
     );
-    return tituloContemBusca || conteudoContemBusca || tagsContemBusca;
   });
 
   return (
@@ -94,12 +100,13 @@ export default function Home() {
         <NotaForm
           onPublicarNota={adicionarOuAtualizarNota}
           notaParaEditar={notaParaEditar}
+          onCancelarEdicao={() => setNotaParaEditar(undefined)}
         />
 
         <NotaList
           notas={notasFiltradas}
           onDeletar={removerNota}
-          onEditar={(nota) => setNotaParaEditar(nota)}
+          onEditar={setNotaParaEditar}
         />
       </main>
 

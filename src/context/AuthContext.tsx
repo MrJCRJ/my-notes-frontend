@@ -30,97 +30,93 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const checkLoginStatus = useCallback(async () => {
     setIsLoading(true);
     try {
-      console.log("Verificando status de login...");
-
-      // Verifica token na URL (redirecionamento OAuth)
+      // 1. Verifica token na URL (redirecionamento OAuth)
       const urlParams = new URLSearchParams(window.location.search);
       const urlToken = urlParams.get("token");
+
+      let currentToken = token;
 
       if (urlToken) {
         console.log("Token encontrado na URL, salvando...");
         localStorage.setItem("jwt_token", urlToken);
-        // Limpa a URL após pegar o token
         window.history.replaceState({}, "", window.location.pathname);
+        currentToken = urlToken;
         setToken(urlToken);
       }
 
-      const storedToken = localStorage.getItem("jwt_token") || token;
+      // 2. Pega o token do localStorage
+      const storedToken = localStorage.getItem("jwt_token") || currentToken;
       if (!storedToken) {
         console.log("Nenhum token encontrado, usuário não autenticado");
         setEmail(null);
         return;
       }
 
+      // 3. Valida o token com o backend
       console.log("Validando token com o backend...");
       const response = await fetch("http://localhost:3000/auth/profile", {
         headers: {
           Authorization: `Bearer ${storedToken}`,
+          "Content-Type": "application/json",
         },
+        credentials: "include", // Importante para cookies
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Login válido. Email:", data.email);
-        setEmail(data.email);
-        setToken(storedToken);
-        toast.success(`Bem-vindo, ${data.email}!`);
-      } else {
-        console.warn("Token inválido ou expirado");
-        throw new Error("Token inválido");
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
+
+      const data = await response.json();
+
+      if (!data?.email) {
+        throw new Error("Resposta do servidor inválida - email não encontrado");
+      }
+
+      console.log("Login válido. Email:", data.email);
+      setEmail(data.email);
+      setToken(storedToken);
     } catch (error) {
       console.error("Erro ao verificar login:", error);
       setEmail(null);
       setToken(null);
       localStorage.removeItem("jwt_token");
-      toast.error("Sessão expirada. Por favor, faça login novamente.");
+
+      if (token) {
+        // Só mostra erro se já estava autenticado
+        toast.error("Sessão expirada. Por favor, faça login novamente.");
+      }
     } finally {
       setIsLoading(false);
     }
-  }, [token]); // Adicione todas as dependências necessárias aqui
+  }, [token]);
 
   const logout = async () => {
     setIsLoading(true);
     try {
-      console.log("Iniciando logout...");
-
-      if (!token) {
-        console.log("Nenhum token encontrado, limpando estado local");
-        throw new Error("No token available");
-      }
-
-      const response = await fetch("http://localhost:3000/auth/logout", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (response.ok) {
-        console.log("Logout realizado com sucesso");
-        toast.success("Logout realizado com sucesso");
-      } else {
-        console.warn("Erro no servidor durante logout:", response.status);
-        throw new Error("Logout failed");
+      if (token) {
+        await fetch("http://localhost:3000/auth/logout", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          credentials: "include",
+        });
       }
     } catch (error) {
       console.error("Erro durante logout:", error);
-      toast.error("Erro durante logout. Limpando dados locais...");
     } finally {
-      // Sempre limpa os dados locais, mesmo se o logout remoto falhar
       setEmail(null);
       setToken(null);
       localStorage.removeItem("jwt_token");
       setIsLoading(false);
+      toast.success("Logout realizado com sucesso");
     }
   };
 
   // Verifica o login ao montar o componente
   useEffect(() => {
-    console.log("AuthProvider montado, verificando autenticação...");
     checkLoginStatus();
-  }, [checkLoginStatus]); // Agora checkLoginStatus está incluído nas dependências
+  }, [checkLoginStatus]);
 
   return (
     <AuthContext.Provider

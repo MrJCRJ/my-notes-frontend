@@ -16,7 +16,7 @@ export default function Home() {
 
   const handleGoogleLogin = useCallback(() => {
     const frontendOrigin = window.location.origin;
-    const redirectUrl = `${frontendOrigin}/auth/callback`;
+    const redirectUrl = `${frontendOrigin}`;
     const authUrl = `http://localhost:3000/auth/google/init?redirect=${encodeURIComponent(
       redirectUrl
     )}`;

@@ -20,7 +20,7 @@ export default function AuthButtons({ onLogin }: AuthButtonsProps) {
 
     try {
       const frontendOrigin = window.location.origin;
-      const callbackUrl = `${frontendOrigin}/auth/callback`;
+      const callbackUrl = `${frontendOrigin}`;
       const authUrl = `http://localhost:3000/auth/google/init?redirect=${encodeURIComponent(
         callbackUrl
       )}`;
